@@ -23,12 +23,46 @@ app.use(fileUpload())
 app.use(cookieParser())
 app.use(expressSession({secret:"universal indore"}))
 
+
+app.use((request,response,next)=>
+{
+    var url = request.url
+    // console.log(request.session.loginuser)
+    // console.log(url)
+    // console.log(url.includes('/web'))
+    // console.log(url.includes('/user'))
+
+    if(url.includes('/web'))
+    {
+        if (request.session.loginuser!=undefined)
+            response.redirect("/user/home") 
+        else
+            next()                   
+    }
+    else
+    {
+        if(url.includes('/user'))
+        {    
+            if (request.session.loginuser==undefined)
+            {
+                //console.log("AAayayay")
+                response.redirect("/web/login")
+            }else{
+                next()       
+            }
+        }else{
+            next()
+        }
+    }             
+})
+
+
 // router url 
 app.use("/web",webrouter)
 app.use("/user",userroute)
 
 // Default url 
-app.use("/",(request,response)=>
+app.get("/",(request,response)=>
 {
     response.redirect("/web/home")    
 })
